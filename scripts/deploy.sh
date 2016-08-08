@@ -2,7 +2,6 @@
 
 set -eu # please dont use -x as this will print secrets in the build log
 
-
 # these env vars can be overridden by circle
 CF_API=${CF_API:-https://api.system.staging.digital.gov.au}
 CF_ORG=${CF_ORG:-dto}
@@ -16,9 +15,11 @@ cf target -o ${CF_ORG} -s ${CF_SPACE}
 # step 2. create db service and app for this branch
 CF_APP_NAME=${CIRCLE_PROJECT_REPONAME}-$(git rev-parse --short ${CIRCLE_SHA1})
 CF_SERVICE_NAME=${CIRCLE_PROJECT_REPONAME}-$(git rev-parse --short ${CIRCLE_SHA1})-db
-cf push ${CF_APP_NAME} --no-start
+cf push ${CF_APP_NAME} --no-start --random-route
 cf create-service dto-shared-pgsql shared-psql ${CF_SERVICE_NAME}
 cf bind-service ${CF_APP_NAME} ${CF_SERVICE_NAME}
+
+curl "https://api.github.com/repos/AusDTO/cf-pgsql-sample-app/issues/1/comments" -d "body:Here is your url"
 
 # step 3. is this a PR? if so, push the PR details into the cf app env
 
