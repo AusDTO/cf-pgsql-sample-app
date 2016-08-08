@@ -21,7 +21,7 @@ cf bind-service ${CF_APP_NAME} ${CF_SERVICE_NAME}
 
 #send generated url to github
 curl -X POST --data '{"body":"here is your url"}' https://api.github.com/repos/AusDTO/cf-pgsql-sample-app/issues/1/comments
-echo "check git comments"
+echo "check git comments if it is posting"
 
 # step 3. is this a PR? if so, push the PR details into the cf app env
 
