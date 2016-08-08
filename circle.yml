@@ -15,13 +15,7 @@ test:
 
 deployment:
   staging:
-    branch: master
+    branch: /.+/
     owner: AusDTO
     commands:
-      - cf api https://api.system.staging.digital.gov.au
-      - cf auth $CF_STAGING_USER $CF_STAGING_PASSWORD
-      - cf target -o dto -s angie-test
-      - cf push $CIRCLE_PROJECT_REPONAME-$(git rev-parse --short $CIRCLE_SHA1) --no-start --random-route
-      - cf create-service dto-shared-pgsql shared-psql $CIRCLE_PROJECT_REPONAME-$(git rev-parse --short $CIRCLE_SHA1)-db
-      - cf bind-service $CIRCLE_PROJECT_REPONAME-$(git rev-parse --short $CIRCLE_SHA1) $CIRCLE_PROJECT_REPONAME-$(git rev-parse --short $CIRCLE_SHA1)-db
-      - cf start $CIRCLE_PROJECT_REPONAME-$(git rev-parse --short $CIRCLE_SHA1)
+      - bash scripts/deploy.sh
