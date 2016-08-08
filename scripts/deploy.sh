@@ -18,9 +18,9 @@ CF_SERVICE_NAME=${CIRCLE_PROJECT_REPONAME}-$(git rev-parse --short ${CIRCLE_SHA1
 cf push ${CF_APP_NAME} --no-start --random-route
 cf create-service dto-shared-pgsql shared-psql ${CF_SERVICE_NAME}
 cf bind-service ${CF_APP_NAME} ${CF_SERVICE_NAME}
-curlCmd="curl 'https://api.github.com/repos/AusDTO/cf-pgsql-sample-app/issues/1/comments' -d 'body:Here is your url'"
-eval $curlCmd
+curl 'https://api.github.com/repos/AusDTO/cf-pgsql-sample-app/issues/1/comments' -d 'body:Here is your url'
 echo "check git comments"
+
 # step 3. is this a PR? if so, push the PR details into the cf app env
 
 if [ -z "${CI_PULL_REQUEST:-}" ] ; then
