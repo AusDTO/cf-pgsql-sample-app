@@ -5,7 +5,7 @@ set -eu # please dont use -x as this will print secrets in the build log
 # these env vars can be overridden by circle
 CF_API=${CF_API:-https://api.system.staging.digital.gov.au}
 CF_ORG=${CF_ORG:-dto}
-CF_SPACE=${CF_SPACE:-dfc-test}
+CF_SPACE=${CF_SPACE:-angie-test}
 
 # step 1. login to the correct org and space with cf
 cf api ${CF_API}
