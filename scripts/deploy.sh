@@ -13,20 +13,20 @@ cf api ${CF_API}
 cf auth ${CF_STAGING_USER} ${CF_STAGING_PASSWORD}
 cf target -o ${CF_ORG} -s ${CF_SPACE}
 
-# step 2. create db service and app for this branch
+# step 2. is this a PR? 
+if [ -z "${CI_PULL_REQUEST:-}" ] ; then
+	echo "commit is not part of a pull request, skipping deploy"
+	exit 0
+fi
+
+# step 3. create db service and app for this branch
 CF_APP_NAME=${CIRCLE_PROJECT_REPONAME}-$(git rev-parse --short ${CIRCLE_SHA1})
 CF_SERVICE_NAME=${CIRCLE_PROJECT_REPONAME}-$(git rev-parse --short ${CIRCLE_SHA1})-db
+
 cf push ${CF_APP_NAME} --no-start
+cf set-env ${CF_APP_NAME} CI_PULL_REQUEST ${CI_PULL_REQUEST}
 cf create-service dto-shared-pgsql shared-psql ${CF_SERVICE_NAME}
 cf bind-service ${CF_APP_NAME} ${CF_SERVICE_NAME}
-
-# step 3. is this a PR? if so, push the PR details into the cf app env
-
-if [ -z "${CI_PULL_REQUEST:-}" ] ; then
-	echo "not a pull request"
-else
-	cf set-env ${CF_APP_NAME} CI_PULL_REQUEST ${CI_PULL_REQUEST}
-fi
 
 # step 4. fire!
 cf start ${CF_APP_NAME}
