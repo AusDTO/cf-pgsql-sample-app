@@ -28,8 +28,7 @@ cf set-env ${CF_APP_NAME} CI_PULL_REQUEST ${CI_PULL_REQUEST}
 cf create-service dto-shared-pgsql shared-psql ${CF_SERVICE_NAME}
 cf bind-service ${CF_APP_NAME} ${CF_SERVICE_NAME}
 # step 5. send generated url to github
-curl -X POST --data '{"body":"here is your url "}' -H "Authorization: token ${GITHUB_TOKEN}" https://api.github.com/users/technoweenie -I
-echo "check git comments if it is posting test all the things"
+curl -H "Authorization: token ${GITHUB_TOKEN}" --data '{ "body":"'"here is your url https://${CF_APP_NAME}.apps.staging.digital.gov.au"'"}' https://api.github.com/repos/AusDTO/cf-pgsql-sample-app/issues/1/comments
 
 # step 6. fire!
 cf start ${CF_APP_NAME}
