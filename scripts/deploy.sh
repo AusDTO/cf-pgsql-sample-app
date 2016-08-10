@@ -19,7 +19,7 @@ if [ -z "${CI_PULL_REQUEST:-}" ] ; then
 fi
 # step 3. create and app name for this branch
 
-CF_APP_NAME="$CIRCLE_USERNAME:$CIRCLE_BRANCH" | md5sum | cut -f 1 -d ' '
+CF_APP_NAME=$CIRCLE_USERNAME:$CIRCLE_BRANCH | md5sum | cut -f 1 -d ' '
 CF_SERVICE_NAME=${CF_APP_NAME}-db
 
 # step 4. create db service and app for this branch
