@@ -20,11 +20,12 @@ fi
 # step 3. create and app name for this branch
 
 CF_APP_NAME="$CIRCLE_USERNAME:$CIRCLE_BRANCH" | md5sum | cut -f 1 -d ' '
+cf set-env ${CF_APP_NAME}
 CF_SERVICE_NAME=${CF_APP_NAME}-db
 
 # step 4. create db service and app for this branch
 cf push ${CF_APP_NAME} --no-start
-cf set-env ${CF_APP_NAME} CI_PULL_REQUEST ${CI_PULL_REQUEST}
+cf set-env CI_PULL_REQUEST ${CI_PULL_REQUEST}
 cf create-service dto-shared-pgsql shared-psql ${CF_SERVICE_NAME}
 cf bind-service ${CF_APP_NAME} ${CF_SERVICE_NAME}
 
