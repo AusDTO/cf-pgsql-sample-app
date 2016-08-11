@@ -24,12 +24,13 @@ CF_APP_NAME=$(${GITHUB_USER_BRANCH}| md5sum | cut -f 1 -d ' ')
 CF_SERVICE_NAME=${CF_APP_NAME}-db
 
 #step 4. don't create another db or app if they already exist
-cf app ${CF_APP_NAME}
+cf app ${CF_APP_NAME} && cf service ${CF_SERVICE_NAME}
 if [ $? -eq 0 ]; then
-    echo OK
+	echo "This needs to only be pushed"
 else
-    echo FAIL
-fi
+    echo "this needs to create a app and db"
+fi # we want to create a new one only if app has been created and db doesn't exist
+
 # # step 4. create db service and app for this branch
 # cf push ${CF_APP_NAME} --no-start
 # cf set-env ${CF_APP_NAME} CI_PULL_REQUEST ${CI_PULL_REQUEST}
