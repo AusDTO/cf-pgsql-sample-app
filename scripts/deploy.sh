@@ -39,5 +39,5 @@ if [ $? -ne 0 ]; then
 	cf start ${CF_APP_NAME}  # if it doesnt exist create all the things
 else
 	echo "only push"
-  cf push #only push
+  cf push ${CF_APP_NAME} #only push
 fi
