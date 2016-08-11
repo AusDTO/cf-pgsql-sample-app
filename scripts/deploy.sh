@@ -18,22 +18,17 @@ if [ -z "${CI_PULL_REQUEST:-}" ] ; then
 	exit 0
 fi
 
-#step 4. don't create another db or app if they already exist
-if (( "$(cf app ${CF_APP_NAME})" == "FAILED" && "$(cf service ${CF_APP_NAME})" == "FAILED" )) ; then
-	echo "it worked"
-else
-	echo "no it didnt, gosh"
-fi
-
-# # step 3. create and app name for this branch
+#step 3. don't create another db or app if they already exist
 GITHUB_USER_BRANCH=${CIRCLE_USERNAME}:${CIRCLE_BRANCH}
 CF_APP_NAME=$(${GITHUB_USER_BRANCH}| md5sum | cut -f 1 -d ' ')
 CF_SERVICE_NAME=${CF_APP_NAME}-db
 
-if (( "$(cf app ${CF_APP_NAME})" == "FAILED" && "$(cf service ${CF_SERVICE_NAME})" == "FAILED" )) ; then
-	echo "it worked"
+#step 4. don't create another db or app if they already exist
+$(cf app ${CF_APP_NAME})
+if [ $? -eq 0 ]; then
+    echo OK
 else
-	echo "no it didnt, gosh"
+    echo FAIL
 fi
 # # step 4. create db service and app for this branch
 # cf push ${CF_APP_NAME} --no-start
