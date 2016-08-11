@@ -24,7 +24,7 @@ CF_APP_NAME=$(${GITHUB_USER_BRANCH}| md5sum | cut -f 1 -d ' ')
 CF_SERVICE_NAME=${CF_APP_NAME}-db
 
 #step 4. don't create another db or app if they already exist
-$(cf app ${CF_APP_NAME})
+cf app ${CF_APP_NAME}
 if [ $? -eq 0 ]; then
     echo OK
 else
