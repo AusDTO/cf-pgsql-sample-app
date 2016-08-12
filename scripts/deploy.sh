@@ -16,28 +16,29 @@ cf target -o ${CF_ORG} -s ${CF_SPACE}
 if [ -z "${CI_PULL_REQUEST:-}" ] ; then
 	echo "commit is not part of a pull request, skipping deploy"
 	exit 0
-fi
-
-#step 3. don't create another db or app if they already exist
-GITHUB_USER_BRANCH=${CIRCLE_USERNAME}:${CIRCLE_BRANCH}
-CF_APP_NAME=$( ${GITHUB_USER_BRANCH} | md5sum | cut -f 1 -d ' ')
-CF_SERVICE_NAME=${CF_APP_NAME}-db
-
-#step 4. don't create another db or app if they already exist
-cf app ${CF_APP_NAME} && cf service ${CF_SERVICE_NAME}
-if [ $? -ne 0 ]; then
-	echo "build all the things"
-	# step 4. create db service and app for this branch
-	cf push ${CF_APP_NAME} --no-start
-	cf set-env ${CF_APP_NAME} CI_PULL_REQUEST ${CI_PULL_REQUEST}
-	cf create-service dto-shared-pgsql shared-psql ${CF_SERVICE_NAME}
-	cf bind-service ${CF_APP_NAME} ${CF_SERVICE_NAME}
-	# step 5. send generated url to github
-	curl -H "Authorization: token ${GITHUB_TOKEN}" --data '{ "body":"'"here is your url https://${CF_APP_NAME}.apps.staging.digital.gov.au"'"}' https://api.github.com/repos/AusDTO/cf-pgsql-sample-app/issues/1/comments
-
-	# step 6. fire!
-	cf start ${CF_APP_NAME}  # if it doesnt exist create all the things
 else
-	echo "only push"
-  cf push ${CF_APP_NAME} #only push
+	#step 3. create app and service name
+	GITHUB_USER_BRANCH=${CIRCLE_USERNAME}:${CIRCLE_BRANCH}
+	CF_APP_NAME=$( ${GITHUB_USER_BRANCH} | md5sum | cut -f 1 -d ' ')
+	CF_SERVICE_NAME=${CF_APP_NAME}-db
+
+	cf app ${CF_APP_NAME} && cf service ${CF_SERVICE_NAME}
+	#step 4. create environment if db and app doesn't exist
+	if [ $? -ne 0 ]; then
+		echo "build all the things"
+		# step 4.1 create db and bind to app
+		cf push ${CF_APP_NAME} --no-start
+		cf set-env ${CF_APP_NAME} CI_PULL_REQUEST ${CI_PULL_REQUEST}
+		cf create-service dto-shared-pgsql shared-psql ${CF_SERVICE_NAME}
+		cf bind-service ${CF_APP_NAME} ${CF_SERVICE_NAME}
+		# step 4.2 send generated url to github
+		curl -H "Authorization: token ${GITHUB_TOKEN}" --data '{ "body":"'"here is your url https://${CF_APP_NAME}.apps.staging.digital.gov.au"'"}' https://api.github.com/repos/AusDTO/cf-pgsql-sample-app/issues/1/comments
+
+		# step 4.3. start app
+		cf start ${CF_APP_NAME}
+	else
+		# step 5 only push changes if db and app already exist for this PR
+		echo "only push"
+	  cf push ${CF_APP_NAME}
+	fi
 fi
