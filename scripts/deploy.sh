@@ -31,10 +31,13 @@ else
 		cf set-env ${CF_APP_NAME} CI_PULL_REQUEST ${CI_PULL_REQUEST}
 		cf create-service dto-shared-pgsql shared-psql ${CF_SERVICE_NAME}
 		cf bind-service ${CF_APP_NAME} ${CF_SERVICE_NAME}
-		# step 4.2 send generated url to github
-		curl -H "Authorization: token ${GITHUB_TOKEN}" --data '{ "body":"'"here is your url https://${CF_APP_NAME}.apps.staging.digital.gov.au"'"}' https://api.github.com/repos/AusDTO/cf-pgsql-sample-app/issues/1/comments
+		#step 4.2 get PR number so we can comment back to it
+		PR_NUMBER=$(echo ${CI_PULL_REQUEST} | sed 's/[^0-9]*//g')
+		cf set-env ${CF_APP_NAME} CI_PR_NUMBER ${CI_PR_NUMBER}
+		# step 4.3 send generated url to github
+		curl -H "Authorization: token ${GITHUB_TOKEN}" --data '{ "body":"'"here is your url https://${CF_APP_NAME}.apps.staging.digital.gov.au"'"}' https://api.github.com/repos/AusDTO/cf-pgsql-sample-app/issues/${CI_PR_NUMBER}/comments
 
-		# step 4.3. start app
+		# step 4.4. start app
 		cf start ${CF_APP_NAME}
 	else
 		# step 5 only push changes if db and app already exist for this PR
@@ -42,3 +45,18 @@ else
 	  cf push ${CF_APP_NAME}
 	fi
 fi
+
+
+# #step 6 if pr is merged spin sown app and db
+# curl https://api.github.com/repos/AusDTO/cf-pgsql-sample-app/
+#
+# GET /repos/:owner/:repo/pulls/:number/merge
+# Response if pull request has been merged
+#
+# Status: 204 No Content
+# Response if pull request has not been merged
+#
+# Status: 404 Not Found
+
+#todo
+#make pr number dynamic
